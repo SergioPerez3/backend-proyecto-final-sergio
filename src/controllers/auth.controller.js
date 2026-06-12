@@ -35,7 +35,7 @@ export const register = async (req, res) => {
       return res.status(422).json({ message: "El correo no es válido" });
     }
 
-    if (!isPasswordValid) {
+    if (!isPasswordValid(password)) {
       return res
         .status(422)
         .json({ message: "Contraseña muy corta, mínimo 6 caracteres" });
@@ -84,7 +84,7 @@ export const login = async (req, res) => {
       return res.status(422).json({ message: "El correo no es válido" });
     }
 
-    if (!isPasswordValid) {
+    if (!isPasswordValid(password)) {
       return res
         .status(422)
         .json({ message: "Contraseña muy corta, mínimo 6 caracteres" });
