@@ -127,7 +127,9 @@ export const updateProduct = async (req, res) => {
       return res.status(404).json({ message: error.message });
     }
 
-    res.status(500).json({ message: "Error al actualizar el producto" });
+    res
+      .status(500)
+      .json({ message: "Error interno del servidor al actualizar producto" });
   }
 };
 
@@ -140,8 +142,10 @@ export const deleteProduct = async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: "Producto no encontrado" });
     }
-    res.json({ message: "Producto borrado" });
+    res.json({ message: "Producto borrado correctamente" });
   } catch (error) {
-    res.status(500).json({ message: "Error al borrar el producto" });
+    res
+      .status(500)
+      .json({ message: "Error interno del servidor borrar el producto" });
   }
 };

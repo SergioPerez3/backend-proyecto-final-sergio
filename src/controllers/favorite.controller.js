@@ -4,54 +4,48 @@ import Favorite from "../models/Favorite.js";
 export const addToFavorites = async (req, res) => {
   try {
     const { product: productId } = req.body;
-    const userId = req.user.id || req.user._id || req.user.userId;
+    const userId = req.user.userId;
 
     if (!productId) {
       return res.status(422).json({ error: "Product ID is required" });
     }
 
     const product = await Product.findById(productId);
-
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
     }
 
     let favorites = await Favorite.findOne({ User: userId });
+
     if (!favorites) {
       favorites = new Favorite({
         User: userId,
-        products: [
-          {
-            product: productId,
-          },
-        ],
+        products: [{ product: productId }],
       });
 
       await favorites.save();
+    } else {
+      const exists = favorites.products.some(
+        (p) => p.product.toString() === productId,
+      );
 
-      return res.status(201).json({
-        message: "Product added to favorites",
-      });
+      if (exists) {
+        return res
+          .status(400)
+          .json({ error: "The product is already listed in favorites" });
+      }
+
+      favorites.products.push({ product: productId });
+      await favorites.save();
     }
 
-    const favoriteExist = favorites.products.some(
-      (p) => p.product.toString() === productId,
+    const populated = await Favorite.findOne({ User: userId }).populate(
+      "products.product",
     );
-    if (favoriteExist) {
-      return res
-        .status(400)
-        .json({ error: "The product is already listed in favorites" });
-    }
-
-    favorites.products.push({
-      product: productId,
-    });
-
-    await favorites.save();
 
     res.status(201).json({
       message: "Product added to favorites",
-      favorites,
+      favorites: populated,
     });
   } catch (error) {
     console.log(error);
@@ -61,20 +55,19 @@ export const addToFavorites = async (req, res) => {
 
 export const getFavorites = async (req, res) => {
   try {
-    const { id: userId } = req.user;
-    const favorites = await Favorite.findOne({ user: userId }).populate(
+    const userId = req.user.userId;
+
+    const favorites = await Favorite.findOne({ User: userId }).populate(
       "products.product",
     );
+
     if (!favorites) {
-      const newFavorites = new Favorite({
+      return res.json({
         User: userId,
         products: [],
       });
-      return res.json({
-        User: newFavorites.User,
-        products: newFavorites.products,
-      });
     }
+
     return res.json({
       User: favorites.User,
       products: favorites.products,
@@ -87,7 +80,7 @@ export const getFavorites = async (req, res) => {
 export const removeFromFavorites = async (req, res) => {
   try {
     const { productId } = req.params;
-    const userId = req.user.id || req.user._id || req.user.userId;
+    const userId = req.user.userId;
 
     const favorites = await Favorite.findOne({ User: userId });
 
@@ -95,15 +88,10 @@ export const removeFromFavorites = async (req, res) => {
       return res.status(404).json({ error: "Favorites not found" });
     }
 
-    const filtered = favorites.products.filter(
-      (p) => p.product.toString() !== productId
+    favorites.products = favorites.products.filter(
+      (p) => p.product.toString() !== productId,
     );
 
-    if (filtered.length === favorites.products.length) {
-      return res.status(404).json({ error: "Product not found in favorites" });
-    }
-
-    favorites.products = filtered;
     await favorites.save();
 
     res.json({
@@ -118,25 +106,20 @@ export const removeFromFavorites = async (req, res) => {
 
 export const clearFavorites = async (req, res) => {
   try {
-    const userId = req.user.id || req.user._id || req.user.userId;
-    const favorite = await Favorite.findOne({
-      User: req.user._id,
-    });
+    const userId = req.user.userId;
 
-    if (!favorite) {
-      const newFavorite = new Favorite({
-        User: req.user._id,
-        products: [],
-      });
-      return res.json(newFavorite);
+    const favorites = await Favorite.findOne({ User: userId });
+
+    if (!favorites) {
+      return res.status(404).json({ message: "No favorites found" });
     }
 
-    favorite.products = [];
-    await favorite.save();
+    favorites.products = [];
+    await favorites.save();
 
-    res.json(favorite);
+    res.json({ message: "Favorites cleared" });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error(error);
+    res.status(500).json({ message: "Error clearing favorites" });
   }
 };
