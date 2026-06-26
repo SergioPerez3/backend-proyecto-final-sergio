@@ -46,7 +46,6 @@ export const getProducts = async (req, res) => {
     };
 
     const products = await Product.find(filters)
-      .select("-description -__v")
       .sort({ [sortBy]: order === "desc" ? -1 : 1 })
       .skip(skip)
       .limit(limit);
@@ -66,7 +65,8 @@ export const getProducts = async (req, res) => {
 
 export const getProductsCategories = async (req, res) => {
   try {
-    const categories = await Product.distinct("category");
+    const categories = await Product.distinct("category")
+    
     res.json(categories);
   } catch (error) {
     res.status(500).json({ message: "Error al obtener las categorias" });
@@ -75,7 +75,8 @@ export const getProductsCategories = async (req, res) => {
 
 export const getProductsFeatured = async (req, res) => {
   try {
-    const featuredProducts = await Product.find({ featured: true }).select(
+    const featuredProducts = await Product.find({ featured: true })
+    .select(
       "-description -__v",
     );
 

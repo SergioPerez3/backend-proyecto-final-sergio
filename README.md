@@ -6,7 +6,7 @@ API REST desarrollada con Node.js, Express y MongoDB para una web de compra-vent
 
 # Características
 
-- CRUD completo de películas
+- CRUD completo de productos
 - Registro de usuarios
 - Inicio de sesión con JWT
 - Contraseñas encriptadas con bcrypt
@@ -110,7 +110,7 @@ node src/seeders/product.seeder.js
 
 # Endpoints
 
-## Una vez que el servidor esté en funcionamiento, puedes acceder a la API a través de http://localhost:<PORT>/api, donde <PORT> es el puerto que configuraste en tu archivo .env.
+ Una vez que el servidor esté en funcionamiento, puedes acceder a la API a través de http://localhost:<PORT>/api, donde <PORT> es el puerto que configuraste en tu archivo .env.
 
 ## Home
 
