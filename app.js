@@ -9,11 +9,12 @@ import cors from "cors";
 
 import productRouter from "./src/routes/product.router.js"
 import authRouter from "./src/routes/auth.router.js"
-
+import favoriteRouter from "./src/routes/favorite.router.js"
 
 const app = express();
 
 app.use(express.json());
+
 
 app.use(cors());
 
@@ -23,5 +24,6 @@ app.get("/", (req, res) => {
 
 app.use("/api/products", productRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/favorites", favoriteRouter);
 
 export default app;

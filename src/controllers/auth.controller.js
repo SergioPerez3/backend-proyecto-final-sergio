@@ -2,29 +2,26 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-
 const isEmailValid = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-    return emailRegex.test(email);
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  return emailRegex.test(email);
 };
 
 const isPasswordValid = (password) => {
-    return password.length >=6;
+  return password.length >= 6;
 };
 
 const getToken = (user) => {
-    return jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
+  return jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+    expiresIn: "7d",
+  });
 };
-
 
 export const register = async (req, res) => {
   try {
     const { name, email } = req.body;
 
     const password = String(req.body.password);
-
 
     if (!name || !email || !password || password == "undefined") {
       return res
@@ -79,7 +76,6 @@ export const login = async (req, res) => {
         .status(422)
         .json({ message: "Todos los campos son obligatorios" });
     }
-
 
     if (!isEmailValid(email)) {
       return res.status(422).json({ message: "El correo no es válido" });
